@@ -10,9 +10,6 @@ def send_email(smtpserver, username, password, receiver, attachement):
     sender = "lizhuo1984eve@163.com"  
     now = datetime.datetime.now()
     subject = now.strftime('%Y年%m月%d日')+"新闻内容筛选结果，请查收！"
-    #smtpserver = "smtp.163.com"  
-    #username = "lizhuo1984eve"  
-    #password = "19841224@w"
     
     msgRoot = MIMEMultipart("related")  
     msgRoot['From'] = sender
