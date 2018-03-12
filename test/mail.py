@@ -7,8 +7,8 @@ import datetime
 from email.mime.multipart import MIMEMultipart  
 from email.mime.text import MIMEText  
 
-#reload(sys)
-#sys.setdefaultencoding('utf8')  # @UndefinedVariable
+reload(sys)
+sys.setdefaultencoding('utf8')  # @UndefinedVariable
 
 def send_email(smtpserver, username, password, receiver, attachement):
     sender = "li_zhuo@163.com"  
@@ -41,6 +41,12 @@ def send_email(smtpserver, username, password, receiver, attachement):
     smtp.quit()  
     
 if __name__ == "__main__":
-    receiver = "li_zhuo@163.com"  
+    if len(sys.argv) < 3:
+        print "Usage: %s username password" % sys.argv[0]
+        sys.exit(1)
+    receiver = "lizhuo84@qq.com"  
     attachement = "../backup/files.zip"
-    send_email("smtp.163.com", "li_zhuo", "[password]", receiver, attachement)
+    user = sys.argv[1]
+    passwd = sys.argv[2]
+    send_email("smtp.163.com", user, passwd, receiver, attachement)
+

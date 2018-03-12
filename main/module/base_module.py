@@ -7,7 +7,7 @@ Created on 2015年8月4日
 '''
 import os
 import sys
-import urllib
+import urllib2
 import logging
 from bs4 import BeautifulSoup
 
@@ -70,7 +70,7 @@ class BasePage(object):
         # 用beautifulsoup解析网页内容
         try:
             soup = BeautifulSoup(cnt, 'html.parser')
-            logging.debug(u'网页格式：%s' % soup.original_encoding)
+            logging.info(u'网页格式：%s' % soup.original_encoding)
             all_news = self.parseAllNews(soup)
             for nw in all_news:
                 news = self.parseNews(nw)
@@ -87,7 +87,7 @@ class BasePage(object):
         根据url获取页面内容
         '''
         try:
-            wp = urllib.urlopen(url)
+            wp = urllib2.urlopen(url, timeout=60)
             cnt = wp.read()
             return cnt
         except Exception, e:
