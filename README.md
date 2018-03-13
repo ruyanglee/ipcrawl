@@ -1,6 +1,19 @@
 # ipcrawl
 
-crawl news about ip from gov websites, such as sipo.gov
+crawl news about ip from some specified gov websites, such as sipo.gov
+
+## 2018.3.13
+
+编写Dockerfile，使用docker容器运行 \
+镜像目前存放在阿里云的镜像仓库中 \
+制作镜像：docker build -t ipcrawl:1.0 . \
+执行镜像：docker run ipcrawl:1.0 \
+推送到镜像仓库：\
+  $ sudo docker login --username=[阿里云账号全名] registry.cn-beijing.aliyuncs.com \
+  $ sudo docker tag [ImageId] registry.cn-beijing.aliyuncs.com/zhuo/ipcrawl:[镜像版本号] \
+  $ sudo docker push registry.cn-beijing.aliyuncs.com/zhuo/ipcrawl:[镜像版本号] \
+其中[阿里云账号全名],[ImageId],[镜像版本号]请你根据自己的镜像信息进行填写。\
+
 
 ## 老版本的使用说明
 
@@ -21,6 +34,6 @@ end：表示要抓取新闻的结束日期，格式形如"xxxx-xx-xx"，例如en
 email：表示抓取到的新闻结果发送至该邮箱，例如email=xxx@xxx.com。此配置项必须配置。\
 3、程序在main目录下的“新闻筛选软件.exe”。双击运行即可。\
 
-程序运行结束以后会把筛选的新闻结果发送到params.conf中配置的邮箱。
+程序运行结束以后会把筛选的新闻结果发送到params.conf中配置的邮箱。 \
+此外，log目录下的app.log文件是执行日志，可以查看程序的运行过程。\
 
-此外，log目录下的app.log文件是执行日志，可以查看程序的运行过程。
