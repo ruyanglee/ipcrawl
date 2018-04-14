@@ -12,27 +12,9 @@ from app_zip import zip_dir
 from app_email import send_email
 
 from module.app_sipo import SipoPage
-from module.app_hljkjt import HljkjtPage
-from module.app_hnkj import HnkjPage
-from module.app_wxkjj import WxkjjPage
-from module.app_tjipo import TjipoPage
-from module.app_tzipp import TzippPage
-from module.app_xwzs import XwzsPage
-from module.app_sxipo import SxipoPage 
-from module.app_sxinfo import SxinfoPage
-from module.app_tyipo import TyipoPage
-from module.app_hnkjt import HnkjtPage
-from module.app_hnipo import HnipoPage
-from module.app_hnst import HnstPage
-from module.app_csipo import CsipoPage
-from module.app_tstc import TstcPage
-from module.app_bhgov import BhgovPage
-from module.app_gxst import GxstPage
-from module.app_nnst import NnstPage
-from module.app_jsip import JsipPage
-from module.app_jstd import JstdPage
-from module.app_njip import NjipPage
-from module.app_szip import SzipPage
+from module.app_cqipo import CqipoPage
+from module.app_bjipo import BjipoPage
+
 
 reload(sys)
 sys.setdefaultencoding('utf8')  # @UndefinedVariable
@@ -87,12 +69,12 @@ class PageSpider(object):
         # 压缩页面
         #now = datetime.datetime.now()
         #attachement = cur_path+"/../backup/files_%s.zip" % now.strftime('%Y年%m月%d日')
-        attachement = cur_path+"/../backup/files.zip"
-        zip_dir(cur_path+"/../files/", attachement)
+        #attachement = cur_path+"/../backup/files.zip"
+        #zip_dir(cur_path+"/../files/", attachement)
         
         # 发送邮件
-        logging.info(u'筛选结果发送到邮箱：' + self.__app_conf.email)
-        send_email(self.__app_conf.smtp, self.__app_conf.username, self.__app_conf.password, self.__app_conf.email, attachement)
+        #logging.info(u'筛选结果发送到邮箱：' + self.__app_conf.email)
+        #send_email(self.__app_conf.smtp, self.__app_conf.username, self.__app_conf.password, self.__app_conf.email, attachement)
         logging.info(u'邮件发送结束')   
     
 if __name__ == "__main__":

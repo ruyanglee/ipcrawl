@@ -8,6 +8,8 @@ Created on 2015年8月4日
 import os
 import sys
 import urllib2
+import requests
+from requests.exceptions import ReadTimeout
 import logging
 from bs4 import BeautifulSoup
 
@@ -82,16 +84,28 @@ class BasePage(object):
             logging.error(u'解析网页内容出错，无法筛选新闻结果。错误原因：%s' % e)
             return
 
-    def requestPage(self, url):
+    def requestPage_urllib2(self, url):
         '''
-        根据url获取页面内容
+        使用urllib2来爬取页面内容
         '''
         try:
-            wp = urllib2.urlopen(url, timeout=60)
+            wp = urllib2.urlopen(url, timeout=10)
             cnt = wp.read()
             return cnt
         except Exception, e:
-            logging.error(u'抓取网页出错。错误原因：%s' % e)
+            logging.error(u'抓取网页%s出错。错误原因：%s' % (url, e))
+            return None
+
+    def requestPage(self, url):
+        '''
+        使用requests来爬取页面内容
+        '''
+        try:
+            resp = requests.get(url, timeout=10)
+            cnt = resp.content
+            return cnt
+        except Exception, e:
+            logging.error(u'抓取网页%s出错。错误原因：%s' % (url, e))
             return None
     
     def parseAllNews(self, soup):
