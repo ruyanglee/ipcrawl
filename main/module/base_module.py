@@ -9,6 +9,7 @@ import os
 import sys
 import urllib2
 import requests
+import traceback
 from requests.exceptions import ReadTimeout
 import logging
 from bs4 import BeautifulSoup
@@ -81,7 +82,8 @@ class BasePage(object):
                     # 保存页面并输出
                     self.saveNews(news, cur_path+'/../files/')
         except Exception, e:
-            logging.error(u'解析网页内容出错，无法筛选新闻结果。错误原因：%s' % e)
+            #logging.error(u'解析网页内容出错，无法筛选新闻结果。错误原因：%s' % e)
+            traceback.print_exc()
             return
 
     def requestPage_urllib2(self, url):
@@ -96,12 +98,41 @@ class BasePage(object):
             logging.error(u'抓取网页%s出错。错误原因：%s' % (url, e))
             return None
 
+    def getContent(url, headers):
+        """
+        此函数用于抓取返回403禁止访问的网页
+        """
+        random_header = random.choice(headers)
+
+        """
+        对于Request中的第二个参数headers，它是字典型参数，所以在传入时
+        也可以直接将个字典传入，字典中就是下面元组的键值对应
+        """
+        req = urllib2.Request(url)
+        req.add_header("User-Agent", random_header)
+        req.add_header("GET", url)
+        req.add_header("Host", "blog.csdn.net")
+        req.add_header("Referer", "http://www.csdn.net/")
+
+        content = urllib2.urlopen(req).read()
+        return content
+
     def requestPage(self, url):
         '''
         使用requests来爬取页面内容
         '''
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:43.0) Gecko/20100101 Firefox/43.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3',
+            'Accept-Encoding': 'gzip, deflate',
+            'Cookie': '_free_proxy_session=BAh7B0kiD3Nlc3Npb25faWQGOgZFVEkiJTYxMDdmMjBlZGVjMTMyN2QxZjVmMTM1OGI1ZWRiNTVmBjsAVEkiEF9jc3JmX3Rva2VuBjsARkkiMVQzaWNQazE2ZHovZ0NReWFKeFpMakp3dURJOVpyMkZXNUp6WUVqNjJJZ2c9BjsARg%3D%3D--fcb2c5aed90070f18b85d2262278f9e5811f6b56; CNZZDATA1256960793=1456382766-1453291871-http%253A%252F%252Fwww.baidu.com%252F%7C1453291871',
+            'Connection': 'keep-alive',
+            'If-None-Match': 'W/"aa248d9ab9daa155024a37bbfb5ce775"',
+            'Cache-Control': 'max-age=0'
+        }
         try:
-            resp = requests.get(url, timeout=10)
+            resp = requests.get(url, timeout=10, headers=headers)
             cnt = resp.content
             return cnt
         except Exception, e:
