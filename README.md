@@ -2,6 +2,13 @@
 
 crawl news about ip from some specified gov websites, such as sipo.gov
 
+## 2018.4.16
+
+1. 使用requests模拟浏览器headers来获取页面，避免被封禁爬虫。
+2. 增加了更多的url地址，以及关键词。
+3. 完善了发邮件体验。
+4. 修改了Dockerfile，减少镜像大小。
+
 ## 2018.3.13
 
 编写Dockerfile，使用docker容器运行 \
