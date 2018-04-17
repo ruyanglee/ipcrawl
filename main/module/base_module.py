@@ -98,24 +98,24 @@ class BasePage(object):
             logging.error(u'抓取网页%s出错。错误原因：%s' % (url, e))
             return None
 
-    def getContent(url, headers):
-        """
-        此函数用于抓取返回403禁止访问的网页
-        """
-        random_header = random.choice(headers)
-
-        """
-        对于Request中的第二个参数headers，它是字典型参数，所以在传入时
-        也可以直接将个字典传入，字典中就是下面元组的键值对应
-        """
-        req = urllib2.Request(url)
-        req.add_header("User-Agent", random_header)
-        req.add_header("GET", url)
-        req.add_header("Host", "blog.csdn.net")
-        req.add_header("Referer", "http://www.csdn.net/")
-
-        content = urllib2.urlopen(req).read()
-        return content
+    # def getContent(url, headers):
+    #     """
+    #     此函数用于抓取返回403禁止访问的网页
+    #     """
+    #     random_header = random.choice(headers)
+    #
+    #     """
+    #     对于Request中的第二个参数headers，它是字典型参数，所以在传入时
+    #     也可以直接将个字典传入，字典中就是下面元组的键值对应
+    #     """
+    #     req = urllib2.Request(url)
+    #     req.add_header("User-Agent", random_header)
+    #     req.add_header("GET", url)
+    #     req.add_header("Host", "blog.csdn.net")
+    #     req.add_header("Referer", "http://www.csdn.net/")
+    #
+    #     content = urllib2.urlopen(req).read()
+    #     return content
 
     def requestPage(self, url):
         '''
@@ -137,7 +137,7 @@ class BasePage(object):
             return cnt
         except Exception, e:
             logging.error(u'抓取网页%s出错。错误原因：%s' % (url, e))
-            return None
+            return self.requestPage_urllib2(url) #requests方式抓取失败，再尝试用urllib2抓取
     
     def parseAllNews(self, soup):
         '''
