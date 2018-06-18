@@ -26,11 +26,13 @@ sys.setdefaultencoding('utf8')  # @UndefinedVariable
 # cur_path = os.path.dirname(os.path.realpath(__file__))
 cur_path = os.path.dirname(os.path.abspath(sys.argv[0]))
 
+tm = time.strftime('%Y%m%d%H%M%S',time.localtime(time.time())) 
+
 logging.basicConfig(level=logging.INFO,
                     # format='[%(asctime)s] [%(filename)s:%(lineno)d] %(levelname)s %(message)s',
                     format='[%(asctime)s] %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S, %a',
-                    filename=cur_path + '/../log/app.log',
+                    filename=cur_path + '/../log/app.log.' + tm,
                     filemode='w')
 
 #################################################################################################
