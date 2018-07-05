@@ -1,7 +1,11 @@
 pipeline {
-  agent any
+  agent none
   stages {
     stage('stage1') {
+      environment {
+        key1 = 'value1'
+        key2 = 'value2'
+      }
       parallel {
         stage('stage1') {
           steps {
@@ -22,5 +26,9 @@ pipeline {
         bat 'echo "step5"'
       }
     }
+  }
+  environment {
+    k1 = 'v1'
+    k2 = 'v2'
   }
 }
