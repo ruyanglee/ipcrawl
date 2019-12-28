@@ -12,7 +12,7 @@ from email.mime.text import MIMEText
 # sys.setdefaultencoding('utf8')  # @UndefinedVariable
 
 def send_email(smtpserver, username, password, receiver, attachement):
-    sender = "li_zhuo@163.com"
+    sender = "lizhuo1984eve@163.com"
     now = datetime.datetime.now()
     subject = now.strftime('%Y年%m月%d日') + "新闻内容筛选结果，请查收！"
 
@@ -43,7 +43,7 @@ def send_email(smtpserver, username, password, receiver, attachement):
 
 
 def send_email_empty(smtpserver, username, password, receiver):
-    sender = "li_zhuo@163.com"
+    sender = "lizhuo1984eve@163.com"
     now = datetime.datetime.now()
     subject = now.strftime('%Y年%m月%d日') + "没有筛选到合适的新闻内容！"
 

@@ -9,7 +9,7 @@ Created on 2015年8月5日
 import datetime
 import logging
 
-from base_module import BasePage, News
+from main.module.base_module import BasePage, News
 
 class BhgovPage(BasePage):
     '''

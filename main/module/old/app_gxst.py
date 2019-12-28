@@ -4,7 +4,7 @@ import datetime
 import logging
 from urlparse import urlparse
 
-from base_module import BasePage, News
+from main.module.base_module import BasePage, News
 
 class GxstPage(BasePage):
     '''

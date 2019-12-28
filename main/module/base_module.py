@@ -71,20 +71,26 @@ class BasePage(object):
             return
         
         # 用beautifulsoup解析网页内容
+        all_news = None
         try:
             soup = BeautifulSoup(cnt, 'html.parser')
             logging.info(u'网页格式：%s' % soup.original_encoding)
             all_news = self.parseAllNews(soup)
-            for nw in all_news:
-                news = self.parseNews(nw)
-                flag = self.hitNews(news)
-                if(flag):
-                    # 保存页面并输出
-                    self.saveNews(news, cur_path+'/../files/')
         except Exception, e:
-            #logging.error(u'解析网页内容出错，无法筛选新闻结果。错误原因：%s' % e)
-            traceback.print_exc()
+            logging.error(u'解析网页内容出错，无法筛选新闻结果。错误原因：%s' % e)
             return
+
+        for nw in all_news:
+            news = None
+            try:
+                news = self.parseNews(nw)
+            except Exception, e:
+                logging.error(u'解析新闻内容出错。错误原因：%s' % e)
+                continue
+            flag = self.hitNews(news)
+            if(flag):
+                # 保存页面并输出
+                self.saveNews(news, cur_path+'/../files/')
 
     def requestPage_urllib2(self, url):
         '''
@@ -157,17 +163,22 @@ class BasePage(object):
         '''
         检查标题关键词、发布时间范围是否匹配设置
         '''
-        # 检查日期范围
-        if (news.time < self._app_conf.beginTime or news.time > self._app_conf.endTime):
-            logging.debug(u'新闻时间不满足指定范围')
+        logging.info(u'判断新闻是否匹配。新闻标题: %s, 新闻链接: %s, 新闻时间: %s' % (news.title, news.href, news.time))
+        try:
+            # 检查日期范围
+            if (news.time < self._app_conf.beginTime or news.time > self._app_conf.endTime):
+                logging.debug(u'新闻时间不满足指定范围')
+                return False
+
+            # 检查关键字是否命中
+            for word in self._app_conf.keywords:
+                if(news.title.find(word) > -1):
+                    return True
+            logging.debug(u'新闻标题没有命中关键字。新闻标题: ' + news.title)
             return False
-        
-        # 检查关键字是否命中
-        for word in self._app_conf.keywords:
-            if(news.title.find(word) > -1):
-                return True
-        logging.debug(u'新闻标题没有命中关键字。新闻标题: ' + news.title)
-        return False
+        except Exception,e:
+            logging.error(u'判断新闻是否匹配出错，错误原因：%s' % e)
+            return False
     
     def saveNews(self, news, local_dir):
         '''
@@ -175,6 +186,13 @@ class BasePage(object):
         '''
         logging.info(u'找到匹配新闻。新闻标题: %s, 新闻链接: %s, 新闻时间: %s' % (news.title, news.href, news.time))
         try:
+            # 把标题、url写入文件
+            fp = open(local_dir + '00_result.txt', 'a+')  # 打开一个文本文件
+            txt = '%s, %s, %s \r\n' % (news.title, news.href, news.time)
+            fp.write(txt)  # 写入数据
+            fp.close()  # 关闭文件
+
+            # 把网页内容保存到本地
             article_content = self.requestPage(news.href)
             fp = open(local_dir + news.title + ".html", "w")  # 打开一个文本文件
             fp.write(article_content)  # 写入数据

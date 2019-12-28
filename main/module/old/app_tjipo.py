@@ -1,43 +1,49 @@
 # coding=UTF-8
 
 '''
-Created on 2019年11月24日
+Created on 2015年8月5日
 
-@author: li_zhuo@163.com
+@author: hp
 '''
+
 import datetime
 import logging
-from urlparse import urlparse
 
-from base_module import BasePage, News
+from main.module.base_module import BasePage, News
 
-class HunanIpoPage(BasePage):
+class TjipoPage(BasePage):
     '''
-    湖南省知识产权局
-    http://ipo.hunan.gov.cn/xxgk/tzgg/
+    http://www.tjipo.gov.cn/xwdt/tztg/
     '''
 
     def __init__(self, app_conf=None, app_url=None):
         '''
         Constructor
         '''
-        super(HunanIpoPage, self).__init__(app_conf, app_url)
+        super(TjipoPage, self).__init__(app_conf, app_url)
 
     def parseAllNews(self, soup):
         '''
         解析页面，得到所有新闻元素。对于新页面，可以重载此方法。
         '''
-        all_news = soup.find('div', {'class': 'main_list_right'}).find('tbody').find_all('tr')
-        return all_news
-    
+        ret = []
+        div = soup.find('div', {'class':'right_list_b'})
+        all_li = div.find_all('li')
+        i = 1
+        while i < len(all_li):
+            ret.append([all_li[i], all_li[i+1]])
+            i = i + 3
+        return ret
+        
     def parseNews(self, news_soup):
         '''
         解析标题，链接，发布日期等元素，返回News对象。
         对于新页面，可以重载此方法。
         '''
-        title = news_soup.find("a")['title']
-        href = self._app_url.url + news_soup.find("a")["href"]
-        date = news_soup.find_all("td")[2].string
+        title = news_soup[0].find("a").string
+        href = self._app_url.url + '/' + news_soup[0].find("a")["href"]
+        date = news_soup[1].string.strip()
         dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
+    

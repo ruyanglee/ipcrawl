@@ -11,14 +11,7 @@ from app_conf import AppConf
 from app_zip import zip_dir
 from app_email import send_email, send_email_empty
 
-from module.app_sipo import SipoPage
-from module.app_cqipo import CqipoPage
-from module.app_bjipo import BjipoPage
-from module.app_jsip import JsipPage
-from module.app_zjpat import ZjpatPage
-from module.app_ahipo import AhipoPage
-from module.app_sipa import SipaPage
-from module.app_zscq import ZscqPage
+from module.app_page_parser import *
 
 reload(sys)
 sys.setdefaultencoding('utf8')  # @UndefinedVariable
@@ -84,8 +77,7 @@ class PageSpider(object):
 
             # 发送邮件
             logging.info(u'筛选结果发送到邮箱：' + self.__app_conf.email)
-            send_email(self.__app_conf.smtp, self.__app_conf.username, self.__app_conf.password, self.__app_conf.email,
-                       attachement)
+            send_email(self.__app_conf.smtp, self.__app_conf.username, self.__app_conf.password, self.__app_conf.email, attachement)
             logging.info(u'邮件发送结束')
         else:
             # 发送邮件，没有合适结果
