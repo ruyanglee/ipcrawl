@@ -1,6 +1,7 @@
 # coding=UTF-8
 
 import sys
+from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 import urllib
 import urllib2
@@ -11,7 +12,17 @@ sys.setdefaultencoding('utf8')  # @UndefinedVariable
 
 if __name__ == "__main__":
     print("start ... ")
-    
+
+    url='http://amr.jiangxi.gov.cn/col/col22493/'
+    session = HTMLSession()
+
+    pg = session.get(url)
+    pg.html.render(sleep=5)
+
+    soup = BeautifulSoup(pg.html.html, "lxml")
+    all_news = soup.find('div', {'class': 'common-list-items'}).find_all('li')
+    print(len(all_news))
+
     '''
     url = "http://218.8.25.229:8003/xwzs!queryXwxxqx.action?lbbn=4"
     req_header = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',

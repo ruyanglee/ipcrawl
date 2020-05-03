@@ -101,4 +101,8 @@ ENV/
 .mypy_cache/
 files/
 backup/
+log/
+.idea/
+.vscode/
+
 

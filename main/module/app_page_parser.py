@@ -1,9 +1,13 @@
 # coding=UTF-8
 
+import time
 import datetime
 import logging
 from urlparse import urlparse
 from base_module import BasePage, News
+from bs4 import BeautifulSoup
+
+############################# 国家 #################################
 
 '''
 国家知识产权局
@@ -29,80 +33,66 @@ class SipoPage(BasePage):
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
 
+############################# 北京 #################################
 
 '''
-湖南省市场监督局
-http://amr.hunan.gov.cn/amr/zwx/xxgkmlx/tzggx/index.html
+北京市知识产权局	http://zscqj.beijing.gov.cn/col/col5652/index.html
 '''
-class HunanAmrPage(BasePage):
+#TODO 新闻内容在<script language="javascript">中渲染。暂时抓不到。
+class BjZscqjPage(BasePage):
     def parseAllNews(self, soup):
-        all_news = soup.find('div', {'class': 'listPage-r-li-xxgk'}).find_all('li')
+        all_news = soup.find('ul', {'class': 'subpageCon-conList'}).find_all('tr', {'style':'border-bottom:1px dashed #e7e7e7;'})
         return all_news
 
     def parseNews(self, news_soup):
-        title = news_soup.find("a")['title']
+        title = news_soup.find('a')['title']
         parsed_uri = urlparse(self._app_url.url)
         domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
         href = domain + news_soup.find("a")["href"]
-        date = news_soup.find("span").string
+        date = news_soup.find('font', {'color':'#808080'}).string.strip()
         dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
 
 
 '''
-湖南省知识产权局
-http://ipo.hunan.gov.cn/xxgk/tzgg/
+海淀区知识产权服务平台
+http://www.bjhd.gov.cn/cip/tzgg2013/  
 '''
-class HunanIpoPage(BasePage):
+class HdZscqPage(BasePage):
     def parseAllNews(self, soup):
-        all_news = soup.find('div', {'class': 'main_list_right'}).find('tbody').find_all('tr')
+        all_news = soup.find('ul', {'class': 'listLi'}).find_all('li')
         return all_news
 
     def parseNews(self, news_soup):
-        title = news_soup.find("a")['title']
+        title = news_soup.find('a').string
         href = self._app_url.url + news_soup.find("a")["href"]
-        date = news_soup.find_all("td")[2].string
-        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        date = news_soup.find('span', {'class': 'date'}).string.strip()
+        dateTime = datetime.datetime.strptime(date, '[%Y-%m-%d]').date()
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
 
+
+
 '''
-徽省市场监督局（知识产权局）
-http://amr.ah.gov.cn/xwdt/gsgg/
+中关村知识产权局
+http://www.zgcip.org.cn/ggtz/index.jhtml?channelId=99
 '''
-class AnHuiAmrPage(BasePage):
+class ZgcipPage(BasePage):
     def parseAllNews(self, soup):
-        all_news = soup.find('div', {'class': 'navjz clearfix'}).find('ul').find_all('li')
+        all_news = soup.find_all('div', {'class': 'contentlist_left'})
         return all_news
 
     def parseNews(self, news_soup):
-        title = news_soup.find("a")['title']
+        title = news_soup.find('div', {'style': 'float:left'}).string
         href = news_soup.find("a")["href"]
-        date = news_soup.find("span").string
-        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        date = news_soup.find('span', {'class': 'time'}).string.strip() # 发布时间: 2020-04-21 09:52:46
+        dateTime = datetime.datetime.strptime(date[5:].strip(), '%Y-%m-%d %H:%M:%S').date()
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
 
 
-'''
-合肥市市场监督局（知识产权局）
-http://amr.hefei.gov.cn/zwgk/gggs/index.html
-'''
-#TODO 网站有反爬虫，未生效
-class HeFeiAmrPage(BasePage):
-    def parseAllNews(self, soup):
-        all_news = soup.find('div', {'class': 'navjz clearfix'}).find('ul').find_all('li')
-        return all_news
-
-    def parseNews(self, news_soup):
-        title = news_soup.find("a")['title']
-        href = news_soup.find("a")["href"]
-        date = news_soup.find("span").string
-        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
-        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
-        return News(href, title, dateTime)
-
+############################# 河北 #################################
 
 '''
 河北省市场监督局（知识产权局）
@@ -125,6 +115,25 @@ class HeBeiScjgPage(BasePage):
 
 
 '''
+石家庄市场监督局（知识产权局）
+http://scjg.sjz.gov.cn/col/1490159811930/index.html
+'''
+class SjzScjgPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'center'}).find_all('div', {'style':'margin-left:6px;margin-right:6px;border-bottom:dashed 1px #959595;height:40px;'})
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find('a')['title']
+        parsed_uri = urlparse(self._app_url.url)
+        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        href = domain + news_soup.find("a")["href"]
+        date = news_soup.find('div', {'style': 'float:right;line-height:40px;font-size:14px;color:#959595'}).string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+'''
 秦皇岛市场监督局（知识产权局） 
 http://scj.qhd.gov.cn/list/12_%E6%96%B0%E9%97%BB%E5%8A%A8%E6%80%81_15_%E9%80%9A%E7%9F%A5%E5%85%AC%E5%91%8A.html
 '''
@@ -143,6 +152,10 @@ class QhdScjPage(BasePage):
         dateTime = datetime.datetime.strptime(date, '%Y/%m/%d').date()
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
+
+
+
+############################# 广东 #################################
 
 
 '''
@@ -197,13 +210,388 @@ class FsAmrPage(BasePage):
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
 
+############################# 江苏 #################################
+
 '''
-北京市知识产权局	http://zscqj.beijing.gov.cn/col/col5652/index.html
+江苏省知识产权局	 
+http://jsip.jiangsu.gov.cn/col/col3256/index.html
 '''
-#TODO 新闻内容在<script language="javascript">中渲染。暂时抓不到。
-class BjZscqjPage(BasePage):
+class JsipPage(BasePage):
     def parseAllNews(self, soup):
-        all_news = soup.find('ul', {'class': 'subpageCon-conList'}).find_all('tr', {'style':'border-bottom:1px dashed #e7e7e7;'})
+        cnt = soup.find('div', {'id': '6691'}).string
+        cnt = cnt.replace('<![CDATA[', '')
+        cnt = cnt.replace(']]>', '')
+        sp = BeautifulSoup(cnt, 'html.parser')
+        all_news = sp.find_all('record')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find('div', {'class': 'text'}).get_text().strip()
+        parsed_uri = urlparse(self._app_url.url)
+        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        href = domain + news_soup.find("a")["href"]
+        # date = news_soup.find('td', {'class':'fontbrown'}).string.strip()
+        date = news_soup.find('div', {'class': 'text-date'}).get_text().strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+'''
+苏州市市场监督局	http://scjgj.suzhou.gov.cn/szqts/tzgg/nav_xwtz.shtml
+'''
+class SuzhouScjgjPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'cont mt10'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find('a')['title']
+        parsed_uri = urlparse(self._app_url.url)
+        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        href = domain + news_soup.find('a')['href']
+        date = news_soup.find('span').string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+
+############################# 海南 #################################
+
+'''
+海南省知识产权局
+http://amr.hainan.gov.cn/szscqj/xxgk/tzgg/ 
+'''
+class HainanAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'gly-r-nr2'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find('a')['title']
+        href = self._app_url.url + news_soup.find("a")['href']
+        date = news_soup.find('em').string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+'''
+海口市知识产权局
+http://amr.haikou.gov.cn/xxgk/gsgg/   
+'''
+class HaikouAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'con-right'}).find_all('div', {'class': 'list_div'})
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find('a')['title']
+        href = self._app_url.url + news_soup.find("a")['href']
+        date = news_soup.find('span', {'class': 'reltime'}).string.strip()
+        dateTime = datetime.datetime.strptime(date[5:].strip(), '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+############################# 湖南 #################################
+
+'''
+湖南省市场监督局
+http://amr.hunan.gov.cn/amr/zwx/xxgkmlx/tzggx/index.html
+'''
+class HunanAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'listPage-r-li-xxgk'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        parsed_uri = urlparse(self._app_url.url)
+        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        href = domain + news_soup.find("a")["href"]
+        date = news_soup.find("span").string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+
+############################# 上海 #################################
+
+'''
+上海市知识产权局
+http://sipa.sh.gov.cn/tzgg/ 
+'''
+class ShSipaPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('ul', {'class': 'uli14 nowrapli no-margin list-date'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        parsed_uri = urlparse(self._app_url.url)
+        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        href = domain + news_soup.find("a")["href"]
+        date = news_soup.find("span").string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y.%m.%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+############################# 四川 #################################
+'''
+四川省知识产权服务促进中心
+http://scipspc.sc.gov.cn/dtzwxx/ggl/
+'''
+class ScipspcPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'r_list'}).find_all('dd')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = self._app_url.url + news_soup.find("a")['href']
+        date = news_soup.find("span").string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+'''
+#成都市科学技术局(知识产权局)
+http://cdst.chengdu.gov.cn/cdkxjsj/c108728/part_list_more.shtml 
+'''
+class CdstPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'borList'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a").string
+        href = news_soup.find("a")['href']
+        date = news_soup.find("span").string.strip()
+        dateTime = datetime.datetime.strptime(date, '%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+
+
+
+############################# 陕西 #################################
+'''
+#陕西省知识产权局
+http://xakj.xa.gov.cn/kjdt/tzgg/1.html
+'''
+class SnipaPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'zwwk'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        parsed_uri = urlparse(self._app_url.url)
+        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        href = domain + '/' + news_soup.find("a")["href"]
+        date = news_soup.a.next_sibling.string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+'''
+#西安市科技局（知识产权局）
+http://xakj.xa.gov.cn/kjdt/tzgg/1.html
+'''
+class XakjPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'col-sm-9 col-md-9 hidden-xs'}).find_all('article')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        parsed_uri = urlparse(self._app_url.url)
+        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        href = domain + news_soup.find("a")["href"]
+        date = news_soup.find("div", {'class':'year'}).string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+############################# 内蒙古 #################################
+'''
+内蒙古市场监督局
+http://amr.nmg.gov.cn/zw/tzgg/ 
+'''
+class NmgAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'top_right_con'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = self._app_url.url + news_soup.find("a")["href"]
+        date = news_soup.find('span', {'class':'xx hhhei16'}).string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+############################# 安徽 #################################
+'''
+安徽省市场监督局（知识产权局）
+http://amr.ah.gov.cn/xwdt/gsgg/
+'''
+class AnHuiAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'navjz clearfix'}).find('ul').find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = news_soup.find("a")["href"]
+        date = news_soup.find("span").string
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+'''
+合肥市市场监督局（知识产权局）
+http://amr.hefei.gov.cn/zwgk/gggs/index.html
+'''
+#TODO 网站有反爬虫，未生效
+class HeFeiAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'navjz clearfix'}).find('ul').find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = news_soup.find("a")["href"]
+        date = news_soup.find("span").string
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+############################# 江西 #################################
+'''
+江西省市场监督局（知识产权局）
+http://amr.jiangxi.gov.cn/col/col22493/ 
+'''
+class JiangxiAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        cnt = soup.find('div', {'id': '336287'}).string
+        cnt = cnt.replace('<![CDATA[', '')
+        cnt = cnt.replace(']]>', '')
+        sp = BeautifulSoup(cnt, 'html.parser')
+        all_news = sp.find_all('record')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = news_soup.find("a")["href"]
+        date = news_soup.find("span").string
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+############################# 湖北 #################################
+'''
+#湖北省知识产权局
+http://zscqj.hubei.gov.cn/fbjd/tzgg/  
+网页内容是JavaScript加载，要调整
+'''
+class HubeiZscqjPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('ul', {'class': 'list-b b4 row hover-style3'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = news_soup.find("a")["href"]
+        date = news_soup.find("div", {'class':'calendar'}).string
+        dateTime = datetime.datetime.strptime(date, '%Y-%m').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+'''
+#武汉市科技局（知识产权局）
+http://kjj.wuhan.gov.cn/wmfw/tzgg/
+'''
+class WuhanKjjPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'list_news clearfix'}).find_all('ul')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a").string
+        href = self._app_url.url + news_soup.find("a")["href"]
+        date = news_soup.find('span').string
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+
+############################# 山东 #################################
+'''
+#山东市市场监督局（知识产权局）
+http://amr.shandong.gov.cn/col/col76510/index.html?number=SD1002  
+网页内容是JavaScript加载，要调整
+'''
+class ShandongAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('table', {'class': 'xxlb-tr'}).find('tbody').find_all('tr')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = news_soup.find("a")["href"]
+        date = news_soup.find("td", {'width':'137'}).string
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+'''
+山东省知识产权事业发展中心
+http://www.sdipo.net/col/col106094/index.html SdipoPage 
+'''
+class SdipoPage(BasePage):
+    def parseAllNews(self, soup):
+        cnt = soup.find('div', {'id': '251396'}).string
+        cnt = cnt.replace('<![CDATA[', '')
+        cnt = cnt.replace(']]>', '')
+        sp = BeautifulSoup(cnt, 'html.parser')
+        all_news = sp.find_all('record')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find('a').span.previous_sibling
+        href = news_soup.find("a")["href"]
+        date = news_soup.find("a").find('span').string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+
+
+############################# 浙江省 #################################
+
+'''
+#浙江省市场监督局（知识产权局）
+http://zjamr.zj.gov.cn/col/col1228969897 ZjAmrPage
+'''
+class ZjAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        cnt = soup.find('div', {'id': '5324848'}).string
+        cnt = cnt.replace('<![CDATA[', '')
+        cnt = cnt.replace(']]>', '')
+        sp = BeautifulSoup(cnt, 'html.parser')
+        all_news = sp.find_all('record')
         return all_news
 
     def parseNews(self, news_soup):
@@ -211,7 +599,119 @@ class BjZscqjPage(BasePage):
         parsed_uri = urlparse(self._app_url.url)
         domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
         href = domain + news_soup.find("a")["href"]
-        date = news_soup.find('font', {'color':'#808080'}).string.strip()
+        date = news_soup.find_all("td")[1].string.strip()
+        dateTime = datetime.datetime.strptime(date, '[%Y-%m-%d]').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+############################# 重庆市 #################################
+
+'''
+#重庆市知识产权局
+http://zscqj.cq.gov.cn/html/tzgg/ CqipoPage
+'''
+class CqipoPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'sortlist pagefk'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a").string
+        parsed_uri = urlparse(self._app_url.url)
+        domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+        href = domain + news_soup.find("a")["href"]
+        date = news_soup.find("span").string
         dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
+
+
+
+############################# 吉林 #################################
+
+'''
+#吉林市场监督局
+http://scjg.jl.gov.cn/zw/zxtz/  JilinScjgPage
+'''
+class JilinScjgPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('ul', {'class': 'index_news_list2'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = self._app_url.url + news_soup.find("a")["href"]
+        dateTime = datetime.datetime.today()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, time.strftime('%Y-%m-%d')))
+        return News(href, title, dateTime)
+
+
+
+
+############################# 辽宁 #################################
+
+'''
+#辽宁省知识产权局
+http://zscq.ln.gov.cn/gztz/ LiaoningZscqPage
+'''
+class LiaoningZscqPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('ul', {'class': 'gllist'}).find_all('li')
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a").string  # TODO 解析title乱码
+        href = self._app_url.url + news_soup.find("a")["href"]
+        date = news_soup.find("span").string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+############################# 深圳 #################################
+'''
+#深圳市市场监督局（知识产权局）
+http://amr.sz.gov.cn/xxgk/zcwj/scjgfg/  ShenzhenAmrPage
+'''
+class ShenzhenAmrPage(BasePage):
+    def parseAllNews(self, soup):
+        all_news = soup.find('div', {'class': 'publicList'}).find_all('li', {'class':'pclist'})
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = news_soup.find("a")["href"]  #绝对路径
+        if(href.find('http') == -1): # 相对路径
+            href = self._app_url.url + news_soup.find("a")["href"]
+        date = news_soup.find('a').find("span").string.strip()
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
+
+############################# 福建 #################################
+
+'''
+#福建省市场监督局（知识产权局）
+http://zjj.fujian.gov.cn/scjggg/  FujianZjjPage
+'''
+class FujianZjjPage(BasePage):
+    def parseAllNews(self, soup):
+        all_ul = soup.find('div', {'class': 'gl_content'}).find_all('ul', {'class':'list'})
+        all_news = all_ul[0].find_all('li')
+        for ul in all_ul[1:]:
+            for li in ul.find_all('li'):
+                all_news.append(li)
+        return all_news
+
+    def parseNews(self, news_soup):
+        title = news_soup.find("a")['title']
+        href = news_soup.find("a")["href"]  #绝对路径
+        if(href.find('http') == -1): # 相对路径
+            href = self._app_url.url + news_soup.find("a")["href"]
+        date = news_soup.find("span").string.strip()
+        dateTime = datetime.datetime.strptime(date, '[%Y-%m-%d]').date()
+        logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
+        return News(href, title, dateTime)
+
