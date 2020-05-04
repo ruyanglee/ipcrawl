@@ -1,23 +1,22 @@
 # coding=UTF-8
 
+import importlib
 import os
-import sys
-import logging
-import time
-import datetime
 import shutil
+import sys
 
-from app_conf import AppConf
-from app_zip import zip_dir
-from app_email import send_email, send_email_empty
+from fake_useragent import UserAgent
 
-from module.app_page_parser import *
+from main.app_conf import AppConf
+from main.app_email import send_email, send_email_empty
+from main.app_zip import zip_dir
+from main.module.app_page_parser import *
 
-reload(sys)
-sys.setdefaultencoding('utf8')  # @UndefinedVariable
+importlib.reload(sys)
 
-# cur_path = os.path.dirname(os.path.realpath(__file__))
+#cur_path = os.path.dirname(os.path.realpath(__file__))
 cur_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+print(cur_path)
 
 tm = time.strftime('%Y%m%d%H%M%S',time.localtime(time.time())) 
 
@@ -38,6 +37,9 @@ logging.getLogger('').addHandler(console)
 
 
 #################################################################################################
+
+# 随机伪造UserAgent
+ua = UserAgent()
 
 class PageSpider(object):
     '''
@@ -76,18 +78,18 @@ class PageSpider(object):
             zip_dir(cur_path + "/../files/", attachement)
 
             # 发送邮件
-            logging.info(u'筛选结果发送到邮箱：' + self.__app_conf.email)
+            logging.info('筛选结果发送到邮箱：' + self.__app_conf.email)
             send_email(self.__app_conf.smtp, self.__app_conf.username, self.__app_conf.password, self.__app_conf.email, attachement)
-            logging.info(u'邮件发送结束')
+            logging.info('邮件发送结束')
         else:
             # 发送邮件，没有合适结果
-            logging.info(u'筛选结果发送到邮箱：' + self.__app_conf.email)
+            logging.info('筛选结果发送到邮箱：' + self.__app_conf.email)
             send_email_empty(self.__app_conf.smtp, self.__app_conf.username, self.__app_conf.password, self.__app_conf.email)
-            logging.info(u'邮件发送结束')
+            logging.info('邮件发送结束')
 
 
 if __name__ == "__main__":
-    logging.info(u'++++++++++ 开始启动抓取程序... ++++++++++ ')
+    logging.info('++++++++++ 开始启动抓取程序... ++++++++++ ')
     start = time.time()
 
     # init paths
@@ -109,4 +111,4 @@ if __name__ == "__main__":
     spider = PageSpider(conf)
     spider.run()
     end = time.time()
-    logging.info(u'本次抓取结束，总耗时：%d秒\n\n' % (end - start))
+    logging.info('本次抓取结束，总耗时：%d秒\n\n' % (end - start))

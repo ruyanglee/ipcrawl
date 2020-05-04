@@ -14,13 +14,13 @@ from email.mime.text import MIMEText
 def send_email(smtpserver, username, password, receiver, attachement):
     sender = "lizhuo1984eve@163.com"
     now = datetime.datetime.now()
-    subject = now.strftime('%Y年%m月%d日') + "新闻内容筛选结果，请查收！"
+    subject = now.strftime('%Y-%m-%d') + "新闻内容筛选结果，请查收！"
 
     msgRoot = MIMEMultipart("related")
     msgRoot['From'] = sender
     msgRoot['To'] = receiver
-    if not isinstance(subject, unicode):
-        subject = unicode(subject)
+    if not isinstance(subject, str):
+        subject = str(subject)
     msgRoot["Subject"] = subject
 
     content = MIMEText("筛选后的新闻内容见附件，请查收，谢谢！", "plain", 'utf-8')
@@ -45,13 +45,13 @@ def send_email(smtpserver, username, password, receiver, attachement):
 def send_email_empty(smtpserver, username, password, receiver):
     sender = "lizhuo1984eve@163.com"
     now = datetime.datetime.now()
-    subject = now.strftime('%Y年%m月%d日') + "没有筛选到合适的新闻内容！"
+    subject = now.strftime('%Y-%m-%d') + "没有筛选到合适的新闻内容！"
 
     msgRoot = MIMEMultipart("related")
     msgRoot['From'] = sender
     msgRoot['To'] = receiver
-    if not isinstance(subject, unicode):
-        subject = unicode(subject)
+    if not isinstance(subject, str):
+        subject = str(subject)
     msgRoot["Subject"] = subject
 
     content = MIMEText("今日没有筛选到合适的新闻内容", "plain", 'utf-8')

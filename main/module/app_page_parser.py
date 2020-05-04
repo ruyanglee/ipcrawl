@@ -3,8 +3,8 @@
 import time
 import datetime
 import logging
-from urlparse import urlparse
-from base_module import BasePage, News
+from urllib.parse import urlparse
+from main.module.base_module import BasePage, News
 from bs4 import BeautifulSoup
 
 ############################# 国家 #################################
@@ -100,16 +100,16 @@ http://scjg.hebei.gov.cn/node/344
 '''
 class HeBeiScjgPage(BasePage):
     def parseAllNews(self, soup):
-        all_news = soup.find('div', {'id': 'add_rlist_content'}).find_all('div', {'class':'article_list flex flex-align-center flex-pack-justify'})
+        all_news = soup.find('div', {'class': 'zkmmr_tl1_list'}).find_all('div', {'class':'zkmmr_tl1_item'})
         return all_news
 
     def parseNews(self, news_soup):
-        title = news_soup.find('div', {'class':'article_list_text'}).string
+        title = news_soup.a.div['title']
         parsed_uri = urlparse(self._app_url.url)
         domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-        href = domain + news_soup.find("a")["href"]
-        date = news_soup.find('div', {'class':'article_list_time'}).string
-        dateTime = datetime.datetime.strptime(date, '[%m-%d]').date()
+        href = domain + news_soup.a["href"]
+        date = news_soup.a.find('p', {'class':'zkmmr_tl1_item_date'}).string
+        dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
 
@@ -214,11 +214,11 @@ class FsAmrPage(BasePage):
 
 '''
 江苏省知识产权局	 
-http://jsip.jiangsu.gov.cn/col/col3256/index.html
+http://jsip.jiangsu.gov.cn/col/col75908/index.html?number=ZS0105
 '''
 class JsipPage(BasePage):
     def parseAllNews(self, soup):
-        cnt = soup.find('div', {'id': '6691'}).string
+        cnt = soup.find('div', {'id': 'div75904'}).string
         cnt = cnt.replace('<![CDATA[', '')
         cnt = cnt.replace(']]>', '')
         sp = BeautifulSoup(cnt, 'html.parser')
@@ -302,7 +302,7 @@ http://amr.hunan.gov.cn/amr/zwx/xxgkmlx/tzggx/index.html
 '''
 class HunanAmrPage(BasePage):
     def parseAllNews(self, soup):
-        all_news = soup.find('div', {'class': 'listPage-r-li-xxgk'}).find_all('li')
+        all_news = soup.find('div', {'class': 'gkgd-con-1'}).find_all('li')
         return all_news
 
     def parseNews(self, news_soup):
@@ -642,7 +642,7 @@ class JilinScjgPage(BasePage):
     def parseNews(self, news_soup):
         title = news_soup.find("a")['title']
         href = self._app_url.url + news_soup.find("a")["href"]
-        dateTime = datetime.datetime.today()
+        dateTime = datetime.date.today()
         logging.debug("title: %s | href: %s | date: %s" % (title, href, time.strftime('%Y-%m-%d')))
         return News(href, title, dateTime)
 
@@ -662,6 +662,8 @@ class LiaoningZscqPage(BasePage):
 
     def parseNews(self, news_soup):
         title = news_soup.find("a").string  # TODO 解析title乱码
+        original_encoding = self.get_soup().original_encoding
+        title = str(title).encode(original_encoding).decode("gbk")
         href = self._app_url.url + news_soup.find("a")["href"]
         date = news_soup.find("span").string.strip()
         dateTime = datetime.datetime.strptime(date, '%Y-%m-%d').date()
