@@ -12,6 +12,9 @@ from main.app_email import send_email, send_email_empty
 from main.app_zip import zip_dir
 from main.module.app_page_parser import *
 
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
 importlib.reload(sys)
 
 #cur_path = os.path.dirname(os.path.realpath(__file__))
@@ -40,6 +43,12 @@ logging.getLogger('').addHandler(console)
 
 # 随机伪造UserAgent
 ua = UserAgent()
+
+# 使用headless chrome和selenium来加载动态js网页
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chromedriverpath = cur_path + '/../chromedriver/win32/chromedriver.exe'
+driver = webdriver.Chrome(executable_path=chromedriverpath, options=chrome_options)
 
 class PageSpider(object):
     '''

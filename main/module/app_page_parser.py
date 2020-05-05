@@ -7,6 +7,8 @@ from urllib.parse import urlparse
 from main.module.base_module import BasePage, News
 from bs4 import BeautifulSoup
 
+from main.app_main import driver
+
 ############################# 国家 #################################
 
 '''
@@ -37,11 +39,15 @@ class SipoPage(BasePage):
 
 '''
 北京市知识产权局	http://zscqj.beijing.gov.cn/col/col5652/index.html
+新闻内容在<script language="javascript">中渲染
 '''
-#TODO 新闻内容在<script language="javascript">中渲染。暂时抓不到。
 class BjZscqjPage(BasePage):
     def parseAllNews(self, soup):
-        all_news = soup.find('ul', {'class': 'subpageCon-conList'}).find_all('tr', {'style':'border-bottom:1px dashed #e7e7e7;'})
+        # 使用selenium来加载动态js网页
+        driver.get(self._app_url.url)
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        all_news = soup.find('ul', {'class': 'subpageCon-conList'}).find_all('tr', {'style': 'border-bottom:1px dashed #e7e7e7;'})
         return all_news
 
     def parseNews(self, news_soup):
@@ -136,10 +142,14 @@ class SjzScjgPage(BasePage):
 '''
 秦皇岛市场监督局（知识产权局） 
 http://scj.qhd.gov.cn/list/12_%E6%96%B0%E9%97%BB%E5%8A%A8%E6%80%81_15_%E9%80%9A%E7%9F%A5%E5%85%AC%E5%91%8A.html
+新闻内容在<script language="javascript">中渲染
 '''
-#TODO Ajax动态加载的页面，所以抓取不到
 class QhdScjPage(BasePage):
     def parseAllNews(self, soup):
+        # 使用selenium来加载动态js网页
+        driver.get(self._app_url.url)
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
         all_news = soup.find('div', {'class': 'news-con'}).find('ul').find_all('li')
         return all_news
 
@@ -148,11 +158,10 @@ class QhdScjPage(BasePage):
         parsed_uri = urlparse(self._app_url.url)
         domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
         href = domain + news_soup.find('a')['href']
-        date = news_soup.find('span').string
+        date = news_soup.find('span').string.strip()
         dateTime = datetime.datetime.strptime(date, '%Y/%m/%d').date()
         logging.debug("title: %s | href: %s | date: %s" % (title, href, date))
         return News(href, title, dateTime)
-
 
 
 ############################# 广东 #################################
