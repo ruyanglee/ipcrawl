@@ -120,4 +120,7 @@ if __name__ == "__main__":
     spider = PageSpider(conf)
     spider.run()
     end = time.time()
+
+    # Closes the browser and shuts down the ChromeDriver executable
+    driver.quit();
     logging.info('本次抓取结束，总耗时：%d秒\n\n' % (end - start))
